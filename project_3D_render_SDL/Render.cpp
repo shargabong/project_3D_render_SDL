@@ -109,6 +109,7 @@ Point2D Renderer3D::projection(Point3D point)
     };
 }
 
+//(מכה גונסטÿ x2)
 //#include "Render.h"
 //
 //Renderer3D::Renderer3D(SDL_Window* _window, SDL_Renderer* _renderer, std::vector<Point3D>& _points, std::vector<Vertex>& _vertices) {

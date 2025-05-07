@@ -44,7 +44,7 @@ private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> lastFrameTime;
 };
 
-
+//(מכה גונסטÿ)
 //class Renderer3D {
 //public:
 //	Renderer3D(SDL_Window* window, SDL_Renderer* renderer, std::vector<Point3D>& points, std::vector<Vertex>& vertices);

@@ -201,6 +201,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+//(олд версия)
 //#include <SDL3/SDL.h>
 //#include <vector>
 //#include "Render.h"
