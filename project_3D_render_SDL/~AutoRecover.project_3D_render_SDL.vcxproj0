@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libs%28Visual Studio%29\imgui;C:\libs%28Visual Studio%29\SDL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libs%28Visual Studio%29\SDL\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\libs%28Visual Studio%29\imgui;C:\libs%28Visual Studio%29\SDL\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\libs%28Visual Studio%29\SDL\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,13 +135,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_impl_sdl3.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_impl_sdlrenderer3.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Render.cpp" />
   </ItemGroup>
