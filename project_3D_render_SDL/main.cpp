@@ -2,194 +2,304 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <chrono> // для DeltaTime
 #include "Render.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 
-// Функция создания куба
+// Функции createCube, createLine, createPyramid остаются без изменений
+
 RenderableModel createCube() {
     return {
         "Cube",
         { // точки
-            {-0.5f, -0.5f, -0.5f},
-            {0.5f, -0.5f, -0.5f},
-            {0.5f, 0.5f, -0.5f},
-            {-0.5f, 0.5f, -0.5f},
-            {-0.5f, -0.5f, 0.5f},
-            {0.5f, -0.5f, 0.5f},
-            {0.5f, 0.5f, 0.5f},
-            {-0.5f, 0.5f, 0.5f}
+            {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
+            {-0.5f, -0.5f, 0.5f},  {0.5f, -0.5f, 0.5f},  {0.5f, 0.5f, 0.5f},  {-0.5f, 0.5f, 0.5f}
         },
         { // ребра
-            {0, 1},
-            {1, 2},
-            {2, 3},
-            {3, 0},
-            {4, 5},
-            {5, 6},
-            {6, 7},
-            {7, 4},
-            {0, 4},
-            {1, 5},
-            {2, 6},
-            {3, 7}
+            {0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6}, {6, 7}, {7, 4},
+            {0, 4}, {1, 5}, {2, 6}, {3, 7}
         }
     };
 }
 
-// Функция создания линии
 RenderableModel createLine() {
     return {
         "Line",
-        { // точки
-            {-1.0f, 0.0f, 0.0f},
-            {1.0f, 0.0f, 0.0f}
-        },
-        { // ребра
-            {0, 1}
-        }
+        { {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} }, { {0, 1} }
     };
 }
 
-// Функция создания пирамиды
 RenderableModel createPyramid() {
     return {
         "Pyramid",
         { // точки
-            {0.0f, 0.5f, 0.0f},
-            {-0.5f, -0.5f, -0.5f},
-            {0.5f, -0.5f, -0.5f},
-            {0.5f, -0.5f, 0.5f},
-            {-0.5f, -0.5f, 0.5f}
+            {0.0f, 0.5f, 0.0f}, {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f},
+            {0.5f, -0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}
         },
         { // ребра
-            {0, 1},
-            {0, 2},
-            {0, 3},
-            {0, 4},
-            {1, 2},
-            {2, 3},
-            {3, 4},
-            {4, 1}
+            {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 3}, {3, 4}, {4, 1}
         }
     };
 }
 
+
+void ApplyCustomStyle() {
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.WindowPadding = ImVec2(10, 10);
+    style.FramePadding = ImVec2(6, 4);
+    style.ItemSpacing = ImVec2(8, 4);
+    style.ItemInnerSpacing = ImVec2(4, 4);
+    style.ScrollbarSize = 14.0f;
+    style.GrabMinSize = 12.0f;
+
+    style.WindowRounding = 6.0f;
+    style.ChildRounding = 6.0f;
+    style.FrameRounding = 4.0f;
+    style.PopupRounding = 6.0f;
+    style.ScrollbarRounding = 9.0f;
+    style.GrabRounding = 4.0f;
+    style.TabRounding = 4.0f;
+
+    ImVec4* colors = ImGui::GetStyle().Colors;
+    colors[ImGuiCol_Text] = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
+    colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
+    colors[ImGuiCol_WindowBg] = ImVec4(0.11f, 0.12f, 0.13f, 0.98f); // Slightly transparent for effect
+    colors[ImGuiCol_ChildBg] = ImVec4(0.15f, 0.16f, 0.18f, 1.00f);
+    colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
+    colors[ImGuiCol_Border] = ImVec4(0.20f, 0.22f, 0.24f, 1.00f);
+    colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.22f, 0.24f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered] = ImVec4(0.25f, 0.28f, 0.30f, 1.00f);
+    colors[ImGuiCol_FrameBgActive] = ImVec4(0.28f, 0.31f, 0.33f, 1.00f);
+    colors[ImGuiCol_TitleBg] = ImVec4(0.08f, 0.09f, 0.10f, 1.00f);
+    colors[ImGuiCol_TitleBgActive] = ImVec4(0.06f, 0.07f, 0.07f, 1.00f);
+    colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+    colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.15f, 0.16f, 1.00f);
+    colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+    colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+    colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+    colors[ImGuiCol_CheckMark] = ImVec4(0.50f, 0.70f, 0.90f, 1.00f); // A nice blue
+    colors[ImGuiCol_SliderGrab] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
+    colors[ImGuiCol_SliderGrabActive] = ImVec4(0.50f, 0.70f, 0.90f, 1.00f);
+    colors[ImGuiCol_Button] = ImVec4(0.30f, 0.50f, 0.70f, 0.40f);
+    colors[ImGuiCol_ButtonHovered] = ImVec4(0.40f, 0.60f, 0.80f, 1.00f);
+    colors[ImGuiCol_ButtonActive] = ImVec4(0.45f, 0.65f, 0.85f, 1.00f);
+    colors[ImGuiCol_Header] = ImVec4(0.30f, 0.50f, 0.70f, 0.31f);
+    colors[ImGuiCol_HeaderHovered] = ImVec4(0.40f, 0.60f, 0.80f, 0.80f);
+    colors[ImGuiCol_HeaderActive] = ImVec4(0.45f, 0.65f, 0.85f, 1.00f);
+    colors[ImGuiCol_Separator] = colors[ImGuiCol_Border];
+    colors[ImGuiCol_SeparatorHovered] = ImVec4(0.10f, 0.40f, 0.75f, 0.78f);
+    colors[ImGuiCol_SeparatorActive] = ImVec4(0.10f, 0.40f, 0.75f, 1.00f);
+    colors[ImGuiCol_ResizeGrip] = ImVec4(0.26f, 0.59f, 0.98f, 0.20f);
+    colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
+    colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
+    colors[ImGuiCol_Tab] = ImVec4(0.25f, 0.40f, 0.58f, 0.80f);
+    colors[ImGuiCol_TabHovered] = ImVec4(0.35f, 0.55f, 0.75f, 1.00f);
+    colors[ImGuiCol_TabActive] = ImVec4(0.30f, 0.50f, 0.70f, 1.00f);
+    colors[ImGuiCol_TabUnfocused] = ImVec4(0.15f, 0.20f, 0.25f, 0.97f);
+    colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.20f, 0.28f, 0.35f, 1.00f);
+//    colors[ImGuiCol_DockingPreview] = ImVec4(0.26f, 0.59f, 0.98f, 0.70f);
+//    colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+    colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+    colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+    colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+    colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+    colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+    colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+    colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+    colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+    colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+    colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+    colors[ImGuiCol_DragDropTarget] = ImVec4(1.00f, 1.00f, 0.00f, 0.90f);
+    colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
+    colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
+    colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+}
+
+
 int main(int argc, char* argv[]) {
-    // Инициализация SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    // Создание окна
-    SDL_Window* window = SDL_CreateWindow("3D Object Selector", 800, 600, SDL_WINDOW_RESIZABLE);
+    SDL_Window* window = SDL_CreateWindow("Enhanced 3D Object Viewer", 1280, 720, SDL_WINDOW_RESIZABLE);
     if (!window) {
-        std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        // ... ошибка ...
         SDL_Quit();
         return 1;
     }
 
-    // Создание рендерера
     SDL_Renderer* gameRenderer = SDL_CreateRenderer(window, nullptr);
     if (!gameRenderer) {
-        std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+        // ... ошибка ...
         SDL_DestroyWindow(window);
         SDL_Quit();
         return 1;
     }
 
-    // Создание вектора моделей
     std::vector<RenderableModel> availableModels;
     availableModels.push_back(createCube());
     availableModels.push_back(createLine());
     availableModels.push_back(createPyramid());
 
-    // Создание рендерера 3D
     Renderer3D renderer3DInstance(window, gameRenderer);
 
-    // Инициализация переменных
-    int currentModelIndex = 0;
+    int currentModelIndex = -1; // -1 означает, что модель не выбрана изначально
     bool modelIsLoaded = false;
 
-    // Инициализация ImGui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui::StyleColorsDark();
+//    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Включаем докинг, если хотим окна ImGui внутри главного
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Для окон вне главного окна SDL (может требовать доп. настроек)
 
-    // Инициализация ImGui
+    // ImGui::StyleColorsDark();
+    // ImGui::StyleColorsLight();
+    ApplyCustomStyle(); // Применяем наш кастомный стиль
+
     ImGui_ImplSDL3_InitForSDLRenderer(window, gameRenderer);
     ImGui_ImplSDLRenderer3_Init(gameRenderer);
 
-    // Основной цикл программы
     bool running = true;
+    auto lastFrameTime = std::chrono::high_resolution_clock::now();
+    float deltaTime = 0.0f;
+
+
+    // Загружаем первую модель по умолчанию, если есть
+    if (!availableModels.empty()) {
+        currentModelIndex = 0;
+        renderer3DInstance.loadModel(availableModels[currentModelIndex]);
+        modelIsLoaded = true;
+    }
+
 
     while (running) {
-        // Обработка событий
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<float> elapsed = currentTime - lastFrameTime;
+        deltaTime = elapsed.count();
+        lastFrameTime = currentTime;
+
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL3_ProcessEvent(&event);
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
+            if (event.type == SDL_EVENT_WINDOW_RESIZED || event.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+                int w, h;
+                SDL_GetWindowSize(window, &w, &h);
+                renderer3DInstance.windowWidth = w;
+                renderer3DInstance.windowHeight = h;
+            }
         }
 
-        // Рендеринг и обновление
+        renderer3DInstance.updateRotation(deltaTime);
+
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
-        // Отрисовка интерфейса
+        // --- UI Controls Window ---
         ImGui::Begin("Controls");
+
         if (ImGui::CollapsingHeader("Model Selection", ImGuiTreeNodeFlags_DefaultOpen)) {
             if (availableModels.empty()) {
                 ImGui::Text("No models available");
             }
             else {
-                ImGui::Text("Available models:");
                 for (size_t i = 0; i < availableModels.size(); ++i) {
                     if (ImGui::RadioButton(availableModels[i].name.c_str(), currentModelIndex == static_cast<int>(i))) {
                         currentModelIndex = i;
                         renderer3DInstance.loadModel(availableModels[currentModelIndex]);
+                        // renderer3DInstance.resetView(); // Можно сбрасывать вид при смене модели
                         modelIsLoaded = true;
                     }
                 }
             }
+            if (modelIsLoaded && currentModelIndex != -1) {
+                ImGui::Text("Current model: %s", availableModels[currentModelIndex].name.c_str());
+            }
+            else {
+                ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 1.0f), "No model selected");
+            }
         }
-
-        // Отрисовка текущей модели
-        if (modelIsLoaded && currentModelIndex != -1) {
-            ImGui::Separator();
-            ImGui::Text("Current model: %s", availableModels[currentModelIndex].name.c_str());
-        }
-        else {
-            ImGui::Text("No model selected");
-        }
-
-        // Кнопка выхода
         ImGui::Separator();
-        if (ImGui::Button("Quit")) {
+
+        if (ImGui::CollapsingHeader("View Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::ColorEdit3("Model Color", &renderer3DInstance.modelColor.x);
+            ImGui::ColorEdit3("Background Color", &renderer3DInstance.backgroundColor.x);
+            ImGui::Separator();
+            ImGui::SliderFloat("Field of View", &renderer3DInstance.fov, 10.0f, 120.0f, "%.0f deg");
+            ImGui::SliderFloat("Camera Distance", &renderer3DInstance.cameraDistance, 0.5f, 20.0f, "%.1f units");
+            if (ImGui::Button("Reset View")) {
+                renderer3DInstance.resetView();
+            }
+        }
+        ImGui::Separator();
+
+        if (ImGui::CollapsingHeader("Rotation Controls")) {
+            ImGui::Checkbox("Auto-rotate", &renderer3DInstance.autoRotate);
+            if (renderer3DInstance.autoRotate) {
+                ImGui::Indent();
+                ImGui::Checkbox("Rotate X", &renderer3DInstance.rotateXEnabled); ImGui::SameLine(120);
+                ImGui::SliderFloat("Speed X", &renderer3DInstance.rotationSpeedX, -2.0f, 2.0f);
+
+                ImGui::Checkbox("Rotate Y", &renderer3DInstance.rotateYEnabled); ImGui::SameLine(120);
+                ImGui::SliderFloat("Speed Y", &renderer3DInstance.rotationSpeedY, -2.0f, 2.0f);
+
+                ImGui::Checkbox("Rotate Z", &renderer3DInstance.rotateZEnabled); ImGui::SameLine(120);
+                ImGui::SliderFloat("Speed Z", &renderer3DInstance.rotationSpeedZ, -2.0f, 2.0f);
+                ImGui::Unindent();
+            }
+            if (ImGui::Button("Reset Rotation Angles")) { // Кнопка для сброса только углов
+                renderer3DInstance.resetRotationAngles();
+            }
+        }
+        ImGui::Separator();
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+        if (ImGui::Button("Quit Application")) {
             running = false;
         }
+        ImGui::End(); // End Controls window
 
-        // Информация о производительности
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-        ImGui::End();
+        // --- Рендеринг ---
+        // Устанавливаем цвет фона из рендерера
+        SDL_SetRenderDrawColor(gameRenderer,
+            static_cast<Uint8>(renderer3DInstance.backgroundColor.x * 255),
+            static_cast<Uint8>(renderer3DInstance.backgroundColor.y * 255),
+            static_cast<Uint8>(renderer3DInstance.backgroundColor.z * 255),
+            SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(gameRenderer);
 
-        // Рендеринг 3D-сцены
-        renderer3DInstance.render();
+        // Рендеринг 3D-сцены (только объекты)
+        if (modelIsLoaded) {
+            renderer3DInstance.renderSceneContent();
+        }
 
-        // Рендеринг ImGui
+        // Рендеринг ImGui поверх всего
         ImGui::Render();
-        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(),gameRenderer);
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), gameRenderer);
+
+        // Если используете Viewports (окна ImGui вне главного окна)
+        // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        //     SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow(); // SDL_GL_GetCurrentContext для OpenGL
+        //     SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+        //     ImGui::UpdatePlatformWindows();
+        //     ImGui::RenderPlatformWindowsDefault();
+        //     SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+        // }
+
         SDL_RenderPresent(gameRenderer);
     }
 
-    // Выход из программы
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
@@ -200,229 +310,3 @@ int main(int argc, char* argv[]) {
 
     return 0;
 }
-
-//(олд версия)
-//#include <SDL3/SDL.h>
-//#include <vector>
-//#include "Render.h"
-//
-//#define SDL_RENDERER_ACCELERATED 0x00000002
-//
-////line 
-//std::vector<Point3D> points{ 
-//	Point3D{ -1.0f, -1.0f, -1.0f }, 
-//	Point3D{ -1.0f, -1.0f, 1.0f }, 
-//};
-//
-//std::vector<Vertex> vertices{ 
-//	Vertex{ 0, 1 },
-//};
-//
-////cube
-////std::vector<Point3D> points{
-////	Point3D{ -1.0f, -1.0f, -1.0f },
-////	Point3D{ -1.0f, -1.0f, 1.0f },
-////	Point3D{ 1.0f, -1.0f, -1.0f },
-////	Point3D{ -1.0f, 1.0f, -1.0f },
-////	Point3D{ -1.0f, 1.0f, 1.0f },
-////	Point3D{ 1.0f, -1.0f, 1.0f },
-////	Point3D{ 1.0f, 1.0f, -1.0f },
-////	Point3D{ 1.0f, 1.0f, 1.0f }
-////};
-////
-////std::vector<Vertex> vertices{
-////	Vertex{ 0, 1 },
-////	Vertex{ 0, 2 },
-////	Vertex{ 0, 3 },
-////	Vertex{ 2, 5 },
-////	Vertex{ 3, 6 },
-////	Vertex{ 3, 4 },
-////	Vertex{ 4, 7 },
-////	Vertex{ 6, 7 },
-////	Vertex{ 7, 5 },
-////	Vertex{ 5, 1 },
-////	Vertex{ 4, 1 },
-////	Vertex{ 2, 6 },
-////};
-//
-////diamond
-////std::vector<Point3D> points{
-////    Point3D{ 0.0f, -1.0f, 0.0f },
-////    Point3D{ -1.0f, 0.5f, 0.0f },
-////	Point3D{ 1.0f, 0.5f, 0.0f },
-////    Point3D{ -0.7f, 0.8f, 0.0f },
-////    Point3D{ 0.7f, 0.8f, 0.0f },
-////};
-////
-////std::vector<Vertex> vertices{
-////    Vertex{ 0, 1 },
-////    Vertex{ 0, 2 },
-////    Vertex{ 1, 3 },
-////    Vertex{ 2, 4 },
-////    Vertex{ 3, 4 },
-////};
-//
-//int main(int argc, char* argv[]) {
-//
-//	SDL_Window* window;
-//	SDL_Renderer* renderer;
-//	window = SDL_CreateWindow("3D Renderer", 800, 600, 0);
-//	renderer = SDL_CreateRenderer(window, 0);
-//
-//	bool running = true;
-//
-//	Renderer3D renderer3D1(window, renderer, points, vertices);
-//
-//	while (running) {
-//		SDL_Event event;
-//		if (SDL_PollEvent(&event)) {
-//			if (event.type == SDL_EVENT_QUIT) {
-//				running = false;
-//				break;
-//			}
-//		}
-//		renderer3D1.render();
-//	}
-//
-//	return 0;
-//}
-
-
-//void displayModelChoices(const std::vector<RenderableModel>& models, bool isInConsoleInputMode, int currentModelIdx, bool isModelCurrentlyLoaded)
-//{
-//    std::cout << "\n--- Model Selection ---" << std::endl;
-//
-//    if (models.empty()) {
-//        std::cout << "No models available to load." << std::endl;
-//        return;
-//    }
-//
-//    if (isModelCurrentlyLoaded) {
-//        if (currentModelIdx >= 0 && static_cast<size_t>(currentModelIdx) < models.size()) {
-//            std::cout << "Currently rendering: " << models[currentModelIdx].name << std::endl;
-//        }
-//        else {
-//            std::cout << "Currently rendering: Unknown (error in index)" << std::endl;
-//        }
-//    }
-//    else {
-//        std::cout << "No model loaded. Please make a selection." << std::endl;
-//    }
-//
-//    std::cout << "Available models:" << std::endl;
-//    for (size_t i = 0; i < models.size(); ++i)
-//    {
-//        std::cout << i + 1 << ". " << models[i].name << std::endl;
-//    }
-//
-//    if (isInConsoleInputMode) {
-//        std::cout << "Enter model number to load (or 0 to cancel and use Spacebar cycling): ";
-//    }
-//    else {
-//        if (isModelCurrentlyLoaded) {
-//            std::cout << "Press Space to cycle models, or Enter to select by number: ";
-//        }
-//        else {
-//            std::cout << "Press Space to select the first model, or Enter to select by number: ";
-//        }
-//    }
-//}
-
-//bool consoleInputMode = false;
-//displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//
-//    while (running)
-//    {
-//        SDL_Event event;
-//        while (SDL_PollEvent(&event))
-//        {
-//            if (event.type == SDL_EVENT_QUIT)
-//            {
-//                running = false;
-//            }
-//            if (event.type == SDL_EVENT_KEY_DOWN)
-//            {
-//                if (consoleInputMode)
-//                {
-//                    if (event.key.key >= SDLK_0 && event.key.key <= SDLK_9)
-//                    {
-//                        int choice = event.key.key - SDLK_0;
-//                        if (choice == 0)
-//                        {
-//                            consoleInputMode = false;
-//                            std::cout << "\nInput cancelled. Switched to Spacebar cycling mode." << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                        else if (!availableModels.empty() && choice > 0 && choice <= static_cast<int>(availableModels.size()))
-//                        {
-//                            currentModelIndex = choice - 1;
-//                            renderer3DInstance.loadModel(availableModels[currentModelIndex]);
-//                            modelIsLoaded = true;
-//                            consoleInputMode = false;
-//                            std::cout << "\nModel '" << availableModels[currentModelIndex].name << "' selected." << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                        else if (availableModels.empty()) {
-//                            std::cout << "\nNo models to select from." << std::endl;
-//                            consoleInputMode = false;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                        else {
-//                            std::cout << "\nInvalid choice. Try again (1-" << availableModels.size() << ") or press 0 to cancel." << std::endl;
-//                        }
-//                    }
-//                    else if (event.key.key == SDLK_ESCAPE)
-//                    {
-//                        consoleInputMode = false;
-//                        std::cout << "\nInput cancelled via Escape. Switched to Spacebar cycling mode." << std::endl;
-//                        displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                    }
-//                }
-//                else
-//                {
-//                    if (event.key.key == SDLK_SPACE)
-//                    {
-//                        if (!availableModels.empty())
-//                        {
-//                            if (!modelIsLoaded) {
-//
-//                            }
-//                            else {
-//                                currentModelIndex = (currentModelIndex + 1) % availableModels.size();
-//                            }
-//                            renderer3DInstance.loadModel(availableModels[currentModelIndex]);
-//                            modelIsLoaded = true;
-//                            std::cout << "\nSelected model: " << availableModels[currentModelIndex].name << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                        else {
-//                            std::cout << "\nNo models to cycle." << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                    }
-//                    else if (event.key.key == SDLK_RETURN || event.key.key == SDLK_KP_ENTER)
-//                    {
-//                        if (!availableModels.empty()) {
-//                            consoleInputMode = true;
-//                            std::cout << "\nEntering number selection mode." << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                        else {
-//                            std::cout << "\nNo models available to select by number." << std::endl;
-//                            displayModelChoices(availableModels, consoleInputMode, currentModelIndex, modelIsLoaded);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        renderer3DInstance.render();
-//        SDL_Delay(16);
-//    }
-//
-//    SDL_DestroyRenderer(gameRenderer);
-//    SDL_DestroyWindow(window);
-//    SDL_Quit();
-//
-//    return 0;
-//}
