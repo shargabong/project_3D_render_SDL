@@ -4,26 +4,23 @@
 
 Renderer3D::Renderer3D(SDL_Window* _window, SDL_Renderer* _renderer)
     : sdl_renderer_ptr(_renderer),
+
     currentRotationX(0.0f), currentRotationY(0.0f), currentRotationZ(0.0f),
     autoRotate(true),
-    rotateXEnabled(false), rotateYEnabled(true), rotateZEnabled(false), // По умолчанию вращаем по Y
+    rotateXEnabled(false), rotateYEnabled(true), rotateZEnabled(false),
     rotationSpeedX(0.5f), rotationSpeedY(0.5f), rotationSpeedZ(0.5f)
 {
     SDL_GetWindowSize(_window, &windowWidth, &windowHeight);
-    resetView(); // Устанавливаем значения по умолчанию
+    resetView();
 }
 
 void Renderer3D::resetView() {
-    fov = DEFAULT_FOV;
-    cameraDistance = DEFAULT_CAMERA_DISTANCE;
+    m_camera.reset(); // Сбрасываем параметры камеры
     modelColor = DEFAULT_MODEL_COLOR;
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
     currentRotationX = 0.0f;
     currentRotationY = 0.0f;
     currentRotationZ = 0.0f;
-    // Можно сбросить и скорости/флаги вращения, если нужно
-    // autoRotate = true;
-    // rotateXEnabled = false; rotateYEnabled = true; rotateZEnabled = false;
 }
 
 void Renderer3D::resetRotationAngles() {
@@ -36,10 +33,6 @@ void Renderer3D::loadModel(const RenderableModel& model)
 {
     current_points = model.points;
     current_vertices = model.vertices;
-    // currentRotationX = 0.0f; // Сброс углов при загрузке модели
-    // currentRotationY = 0.0f;
-    // currentRotationZ = 0.0f;
-    // Вместо этого лучше вызывать resetView() или часть его логики, если хотим полный сброс
     std::cout << "Loaded model: " << model.name << std::endl;
 }
 
@@ -50,7 +43,6 @@ void Renderer3D::updateRotation(float deltaTime)
         if (rotateYEnabled) currentRotationY += rotationSpeedY * deltaTime;
         if (rotateZEnabled) currentRotationZ += rotationSpeedZ * deltaTime;
 
-        // Ограничиваем углы, чтобы избежать переполнения float со временем
         auto wrap_angle = [](float angle) {
             return fmod(angle, 2.0f * SDL_PI_F);
             };
@@ -75,7 +67,7 @@ Point3D Renderer3D::rotatePoint(Point3D point, float angleX, float angleY, float
     }
 
     // Вращение вокруг Y
-    if (angleX != 0.0f) {
+    if (angleY != 0.0f) {
         float cosY = cos(angleY);
         float sinY = sin(angleY);
         temp.x = p.x * cosY + p.z * sinY;
@@ -85,11 +77,11 @@ Point3D Renderer3D::rotatePoint(Point3D point, float angleX, float angleY, float
     }
 
     // Вращение вокруг Z
-    if (angleX != 0.0f) {
+    if (angleZ != 0.0f) {
         float cosZ = cos(angleZ);
         float sinZ = sin(angleZ);
         temp.x = p.x * cosZ - p.y * sinZ;
-        temp.y = p.x * sinZ - p.z * sinZ;
+        temp.y = p.x * sinZ + p.y * cosZ;
         temp.z = p.z;
         p = temp;
     }
@@ -98,36 +90,25 @@ Point3D Renderer3D::rotatePoint(Point3D point, float angleX, float angleY, float
 
 Point2D Renderer3D::projection(Point3D point)
 {
-    // Используем FOV для определения масштаба проекции.
-    // Чем меньше FOV, тем "ближе" камера (больше масштаб).
-    // Формула: distance = 1 / tan(fov_radians / 2)
-    // Для простоты, можно использовать fov как прямой делитель, но правильнее так:
-    float fov_rad = fov * SDL_PI_F / 180.0f;
+    // Используем параметры из m_camera
+    float fov_rad = m_camera.fov * SDL_PI_F / 180.0f;
     float projection_plane_dist = 1.0f / tan(fov_rad / 2.0f);
 
-    float z_eff = point.z + cameraDistance;
-    // Добавим небольшое значение к знаменателю, чтобы избежать деления на ноль или очень маленькое число
-    // если объект слишком близко или за камерой.
-    // Также, объекты за плоскостью проекции (z_eff <= 0) не должны рисоваться.
-    // Но простой клиппинг здесь может быть сложен для линий.
-    // Пока просто используем max для предотвращения деления на ноль/отрицательное.
+    float z_eff = point.z + m_camera.cameraDistance;
 
     float perspective_factor = 0.0f;
-    if (z_eff > 0.01f) { // Небольшой порог перед камерой
+    if (z_eff > 0.01f) {
         perspective_factor = projection_plane_dist / z_eff;
     }
 
     float projection_x = point.x * perspective_factor;
     float projection_y = point.y * perspective_factor;
 
-    // Масштабирование и центрирование
-    // Масштаб подбирается так, чтобы объект размером 1x1 на расстоянии cameraDistance=DEFAULT_CAMERA_DISTANCE
-    // занимал разумную часть экрана.
-    float scale = std::min(windowHeight, windowHeight) / 2.5f; // Эмпирический подбор масштаба
+    float scale = std::min(static_cast<float>(windowWidth), static_cast<float>(windowHeight)) / 2.5f;
 
     return Point2D{
         windowWidth / 2.0f + projection_x * scale,
-        windowHeight / 2.0f - projection_y * scale // Y инвертирован в экранных координатах
+        windowHeight / 2.0f - projection_y * scale
     };
 }
 
@@ -137,8 +118,7 @@ void Renderer3D::renderSceneContent()
     {
         return;
     }
-    
-    // цвета модели
+
     SDL_SetRenderDrawColor(sdl_renderer_ptr,
         static_cast<Uint8>(modelColor.x * 255),
         static_cast<Uint8>(modelColor.y * 255),

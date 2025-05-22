@@ -48,6 +48,15 @@
     <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_impl_sdlrenderer3.cpp">
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UImanager.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UImanager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Render.h">
@@ -82,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imstb_truetype.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
