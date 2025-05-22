@@ -5,41 +5,7 @@
 #include <chrono>
 #include "Render.h"
 #include "UIManager.h"
-
-RenderableModel createCube() {
-    return {
-        "Cube",
-        {
-            {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
-            {-0.5f, -0.5f, 0.5f},  {0.5f, -0.5f, 0.5f},  {0.5f, 0.5f, 0.5f},  {-0.5f, 0.5f, 0.5f}
-        },
-        {
-            {0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6}, {6, 7}, {7, 4},
-            {0, 4}, {1, 5}, {2, 6}, {3, 7}
-        }
-    };
-}
-
-RenderableModel createLine() {
-    return {
-        "Line",
-        { {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f} }, { {0, 1} }
-    };
-}
-
-RenderableModel createPyramid() {
-    return {
-        "Pyramid",
-        {
-            {0.0f, 0.5f, 0.0f}, {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f},
-            {0.5f, -0.5f, 0.5f}, {-0.5f, -0.5f, 0.5f}
-        },
-        {
-            {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 2}, {2, 3}, {3, 4}, {4, 1}
-        }
-    };
-}
-
+#include "ModelFactory.h" 
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -63,9 +29,9 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<RenderableModel> availableModels;
-    availableModels.push_back(createCube());
-    availableModels.push_back(createLine());
-    availableModels.push_back(createPyramid());
+    availableModels.push_back(ModelFactory::createCube());
+    availableModels.push_back(ModelFactory::createLine());
+    availableModels.push_back(ModelFactory::createPyramid());
 
     Renderer3D renderer3DInstance(window, gameRenderer);
     UIManager uiManagerInstance;
@@ -75,7 +41,6 @@ int main(int argc, char* argv[]) {
     int currentModelIndex = -1;
     bool modelIsLoaded = false;
     bool running = true;
-
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
     float deltaTime = 0.0f;
 
@@ -94,7 +59,6 @@ int main(int argc, char* argv[]) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             uiManagerInstance.processEvent(&event);
-
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
@@ -109,17 +73,13 @@ int main(int argc, char* argv[]) {
         renderer3DInstance.updateRotation(deltaTime);
 
         uiManagerInstance.newFrame();
-
         uiManagerInstance.renderUI(
             renderer3DInstance,
             availableModels,
             currentModelIndex,
-            modelIsLoaded,
-            running
+            modelIsLoaded
         );
 
-
-        // --- Рендеринг SDL ---
         SDL_SetRenderDrawColor(gameRenderer,
             static_cast<Uint8>(renderer3DInstance.backgroundColor.x * 255),
             static_cast<Uint8>(renderer3DInstance.backgroundColor.y * 255),
@@ -132,12 +92,10 @@ int main(int argc, char* argv[]) {
         }
 
         uiManagerInstance.present(gameRenderer);
-
         SDL_RenderPresent(gameRenderer);
     }
 
     uiManagerInstance.shutdown();
-
     SDL_DestroyRenderer(gameRenderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

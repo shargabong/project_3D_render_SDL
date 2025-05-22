@@ -144,6 +144,7 @@
     <ClCompile Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ModelFactory.cpp" />
     <ClCompile Include="Render.cpp" />
     <ClCompile Include="UImanager.cpp" />
     <ClCompile Include="UImanager.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imstb_textedit.h" />
     <ClInclude Include="..\..\..\..\..\..\libs(Visual Studio)\imgui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ModelFactory.h" />
     <ClInclude Include="Render.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

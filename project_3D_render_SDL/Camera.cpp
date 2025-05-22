@@ -62,5 +62,5 @@ private:
     Camera m_camera;
 
     const ImVec4 DEFAULT_MODEL_COLOR = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-    const ImVec4 DEFAULT_BACKGROUND_COLOR = ImVec4(0.1f, 0.1f, 0.12f, 1.0f); // 
+    const ImVec4 DEFAULT_BACKGROUND_COLOR = ImVec4(0.1f, 0.1f, 0.12f, 1.0f);
 };

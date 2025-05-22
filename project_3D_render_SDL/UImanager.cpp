@@ -1,12 +1,10 @@
 #include "UIManager.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
-#include <iostream>
 #include <SDL3/SDL.h>
 
-
 UIManager::UIManager() {
-    //пока пуст
+    // Конструктор пока пуст
 }
 
 void UIManager::applyCustomStyle() {
@@ -87,9 +85,7 @@ void UIManager::initialize(SDL_Window* window, SDL_Renderer* renderer) {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-
     applyCustomStyle();
-
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
 }
@@ -114,8 +110,7 @@ void UIManager::renderUI(
     Renderer3D& renderer,
     const std::vector<RenderableModel>& availableModels,
     int& currentModelIndex,
-    bool& modelIsLoaded,
-    bool& quitFlag
+    bool& modelIsLoaded
 ) {
     ImGuiIO& io = ImGui::GetIO();
 
@@ -176,15 +171,10 @@ void UIManager::renderUI(
     ImGui::Separator();
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-    if (ImGui::Button("Quit Application")) {
-        quitFlag = true;
-    }
     ImGui::End();
-
 }
 
 void UIManager::present(SDL_Renderer* renderer) {
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
-
 }
