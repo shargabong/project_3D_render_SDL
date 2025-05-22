@@ -113,3 +113,6 @@
 
 
 *Создано с ❤️ и C++*
+
+## Документация
+https://docs.google.com/document/d/1FtuVOy-ztknx0qA2EedoAcY5I9_egSngjuPyq8cHuE8/edit?usp=sharing
