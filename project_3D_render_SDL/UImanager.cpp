@@ -1,11 +1,9 @@
 #include "UIManager.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlrenderer3.h"
+#include <imgui/backends/imgui_impl_sdl3.h>
+#include <imgui/backends/imgui_impl_sdlrenderer3.h>
 #include <SDL3/SDL.h>
-
-UIManager::UIManager() {
-    // Конструктор пока пуст
-}
+#include <iostream>
+#include "tinyfiledialogs.h"
 
 void UIManager::applyCustomStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
@@ -15,7 +13,6 @@ void UIManager::applyCustomStyle() {
     style.ItemInnerSpacing = ImVec2(4, 4);
     style.ScrollbarSize = 14.0f;
     style.GrabMinSize = 12.0f;
-
     style.WindowRounding = 6.0f;
     style.ChildRounding = 6.0f;
     style.FrameRounding = 4.0f;
@@ -23,7 +20,6 @@ void UIManager::applyCustomStyle() {
     style.ScrollbarRounding = 9.0f;
     style.GrabRounding = 4.0f;
     style.TabRounding = 4.0f;
-
     ImVec4* colors = ImGui::GetStyle().Colors;
     colors[ImGuiCol_Text] = ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
@@ -80,6 +76,9 @@ void UIManager::applyCustomStyle() {
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 }
 
+UIManager::UIManager() {
+}
+
 void UIManager::initialize(SDL_Window* window, SDL_Renderer* renderer) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -108,32 +107,45 @@ void UIManager::newFrame() {
 
 void UIManager::renderUI(
     Renderer3D& renderer,
-    const std::vector<RenderableModel>& availableModels,
-    int& currentModelIndex,
-    bool& modelIsLoaded
+    RenderableModel& currentLoadedModel,
+    bool modelIsLoaded,
+    std::function<void(const std::string&)> loadObjRequestCallback
 ) {
     ImGuiIO& io = ImGui::GetIO();
 
     ImGui::Begin("Controls");
 
     if (ImGui::CollapsingHeader("Model Selection", ImGuiTreeNodeFlags_DefaultOpen)) {
-        if (availableModels.empty()) {
-            ImGui::Text("No models available");
-        }
-        else {
-            for (size_t i = 0; i < availableModels.size(); ++i) {
-                if (ImGui::RadioButton(availableModels[i].name.c_str(), currentModelIndex == static_cast<int>(i))) {
-                    currentModelIndex = i;
-                    renderer.loadModel(availableModels[currentModelIndex]);
-                    modelIsLoaded = true;
-                }
+        if (ImGui::Button("Load OBJ File...")) {
+            char const* lTheOpenFileName;
+            char const* lFilterPatterns[1] = { "*.obj" };
+
+            lTheOpenFileName = tinyfd_openFileDialog(
+                "Open OBJ File",
+                "",
+                1,
+                lFilterPatterns,
+                "OBJ files",
+                0
+            );
+
+            if (lTheOpenFileName) {
+                std::cout << "User selected OBJ file: " << lTheOpenFileName << std::endl;
+                loadObjRequestCallback(std::string(lTheOpenFileName));
+            }
+            else {
+                std::cout << "User cancelled OBJ file selection." << std::endl;
             }
         }
-        if (modelIsLoaded && currentModelIndex != -1) {
-            ImGui::Text("Current model: %s", availableModels[currentModelIndex].name.c_str());
+
+        ImGui::Separator();
+
+        if (modelIsLoaded) {
+            ImGui::Text("Current model: %s", currentLoadedModel.name.c_str());
         }
         else {
-            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 1.0f), "No model selected");
+            ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.8f, 1.0f), "No model loaded");
+            ImGui::Text("Use 'Load OBJ File...' to select a model.");
         }
     }
     ImGui::Separator();
@@ -142,8 +154,8 @@ void UIManager::renderUI(
         ImGui::ColorEdit3("Model Color", &renderer.modelColor.x);
         ImGui::ColorEdit3("Background Color", &renderer.backgroundColor.x);
         ImGui::Separator();
+        ImGui::Text("Camera Settings:");
         ImGui::SliderFloat("Field of View", &renderer.getCamera().fov, 10.0f, 120.0f, "%.0f deg");
-        ImGui::SliderFloat("Camera Distance", &renderer.getCamera().cameraDistance, 0.5f, 20.0f, "%.1f units");
         if (ImGui::Button("Reset View")) {
             renderer.resetView();
         }

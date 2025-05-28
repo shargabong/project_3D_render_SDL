@@ -3,9 +3,12 @@
 #include <string>
 #include <iostream>
 #include <chrono>
+#include <functional>
 #include "Render.h"
 #include "UIManager.h"
-#include "ModelFactory.h" 
+#include "ModelFactory.h"
+#include "ModelLoader.h"
+#include "tinyfiledialogs.h"
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -28,27 +31,40 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::vector<RenderableModel> availableModels;
-    availableModels.push_back(ModelFactory::createCube());
-    availableModels.push_back(ModelFactory::createLine());
-    availableModels.push_back(ModelFactory::createPyramid());
+    RenderableModel currentModel;
 
     Renderer3D renderer3DInstance(window, gameRenderer);
     UIManager uiManagerInstance;
 
     uiManagerInstance.initialize(window, gameRenderer);
 
-    int currentModelIndex = -1;
     bool modelIsLoaded = false;
     bool running = true;
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
     float deltaTime = 0.0f;
 
-    if (!availableModels.empty()) {
-        currentModelIndex = 0;
-        renderer3DInstance.loadModel(availableModels[currentModelIndex]);
-        modelIsLoaded = true;
-    }
+    auto handleLoadObjRequest = [&](const std::string& filepath) {
+        RenderableModel newModel;
+        if (ModelLoader::loadObj(filepath, newModel)) {
+            currentModel = newModel;
+            renderer3DInstance.loadModel(currentModel);
+            modelIsLoaded = true;
+            std::cout << "Successfully loaded and set new model: " << currentModel.name << std::endl;
+        }
+        else {
+            modelIsLoaded = false;
+            currentModel.name = "Load Failed";
+            currentModel.points.clear();
+            currentModel.edges.clear();
+            renderer3DInstance.loadModel(currentModel);
+            std::cerr << "Failed to load OBJ model from: " << filepath << std::endl;
+            tinyfd_messageBox("Error", ("Failed to load OBJ file:\n" + filepath).c_str(), "ok", "error", 1);
+        }
+        };
+
+    currentModel = ModelFactory::createCube();
+    renderer3DInstance.loadModel(currentModel);
+    modelIsLoaded = true;
 
     while (running) {
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -75,9 +91,9 @@ int main(int argc, char* argv[]) {
         uiManagerInstance.newFrame();
         uiManagerInstance.renderUI(
             renderer3DInstance,
-            availableModels,
-            currentModelIndex,
-            modelIsLoaded
+            currentModel,
+            modelIsLoaded,
+            handleLoadObjRequest
         );
 
         SDL_SetRenderDrawColor(gameRenderer,

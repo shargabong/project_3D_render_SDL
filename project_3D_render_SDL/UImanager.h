@@ -1,9 +1,10 @@
 #pragma once
 
 #include "imgui.h"
-#include "Render.h" 
-#include <vector>   
-#include <string>   
+#include "Render.h"
+#include <vector>
+#include <string>
+#include <functional>
 
 class UIManager
 {
@@ -17,9 +18,9 @@ public:
 
     void renderUI(
         Renderer3D& renderer,
-        const std::vector<RenderableModel>& availableModels,
-        int& currentModelIndex,
-        bool& modelIsLoaded
+        RenderableModel& currentLoadedModel,
+        bool modelIsLoaded,
+        std::function<void(const std::string&)> loadObjRequestCallback
     );
 
     void present(SDL_Renderer* renderer);
