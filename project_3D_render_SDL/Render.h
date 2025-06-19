@@ -1,5 +1,5 @@
 #pragma once
-#include "SDL3/SDL.h"
+#include <SDL3/SDL.h>
 #include <cmath>
 #include <chrono>
 #include <vector>
@@ -15,11 +15,9 @@ struct RenderableModel
 	std::string name;
 	std::vector<Vec3> points;
 	std::vector<Edge> edges;
-
 	std::vector<Vec2> texcoords_pool;
 	std::vector<Vec3> normals_pool;
 	std::vector<ObjFace> faces_data;
-
 	RenderableModel() = default;
 };
 
@@ -37,14 +35,14 @@ public:
 	ImVec4 modelColor;
 	ImVec4 backgroundColor;
 
-	bool autoRotate;
-	bool rotateXEnabled;
-	bool rotateYEnabled;
-	bool rotateZEnabled;
+	bool autoRotateModel;
+	bool rotateModelXEnabled;
+	bool rotateModelYEnabled;
+	bool rotateModelZEnabled;
 
-	float rotationSpeedX;
-	float rotationSpeedY;
-	float rotationSpeedZ;
+	float modelRotationSpeedX;
+	float modelRotationSpeedY;
+	float modelRotationSpeedZ;
 
 	int windowWidth = 0;
 	int windowHeight = 0;
@@ -56,9 +54,9 @@ private:
 	Vec3 rotatePoint(Vec3 point, float angleX, float angleY, float angleZ);
 	Vec2 projection(Vec3 point);
 
-	float currentRotationX;
-	float currentRotationY;
-	float currentRotationZ;
+	float modelRotationX;
+	float modelRotationY;
+	float modelRotationZ;
 
 	SDL_Renderer* sdl_renderer_ptr;
 	std::vector<Vec3> current_points_to_render;

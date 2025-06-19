@@ -1,6 +1,6 @@
 #include "UIManager.h"
-#include <imgui/backends/imgui_impl_sdl3.h>
-#include <imgui/backends/imgui_impl_sdlrenderer3.h>
+#include "imgui/backends/imgui_impl_sdl3.h"
+#include "imgui/backends/imgui_impl_sdlrenderer3.h"
 #include <SDL3/SDL.h>
 #include <iostream>
 #include "tinyfiledialogs.h"
@@ -163,17 +163,17 @@ void UIManager::renderUI(
     ImGui::Separator();
 
     if (ImGui::CollapsingHeader("Rotation Controls")) {
-        ImGui::Checkbox("Auto-rotate", &renderer.autoRotate);
-        if (renderer.autoRotate) {
+        ImGui::Checkbox("Auto-rotate", &renderer.autoRotateModel);
+        if (renderer.autoRotateModel) {
             ImGui::Indent();
-            ImGui::Checkbox("Rotate X", &renderer.rotateXEnabled); ImGui::SameLine(120);
-            ImGui::SliderFloat("Speed X", &renderer.rotationSpeedX, -2.0f, 2.0f);
+            ImGui::Checkbox("Rotate X", &renderer.rotateModelXEnabled); ImGui::SameLine(120);
+            ImGui::SliderFloat("Speed X", &renderer.modelRotationSpeedX, -2.0f, 2.0f);
 
-            ImGui::Checkbox("Rotate Y", &renderer.rotateYEnabled); ImGui::SameLine(120);
-            ImGui::SliderFloat("Speed Y", &renderer.rotationSpeedY, -2.0f, 2.0f);
+            ImGui::Checkbox("Rotate Y", &renderer.rotateModelYEnabled); ImGui::SameLine(120);
+            ImGui::SliderFloat("Speed Y", &renderer.modelRotationSpeedY, -2.0f, 2.0f);
 
-            ImGui::Checkbox("Rotate Z", &renderer.rotateZEnabled); ImGui::SameLine(120);
-            ImGui::SliderFloat("Speed Z", &renderer.rotationSpeedZ, -2.0f, 2.0f);
+            ImGui::Checkbox("Rotate Z", &renderer.rotateModelZEnabled); ImGui::SameLine(120);
+            ImGui::SliderFloat("Speed Z", &renderer.modelRotationSpeedZ, -2.0f, 2.0f);
             ImGui::Unindent();
         }
         if (ImGui::Button("Reset Rotation Angles")) {

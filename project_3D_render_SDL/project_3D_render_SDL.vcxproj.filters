@@ -69,7 +69,7 @@
     <ClCompile Include="ModelLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\libs\tiny\tinyfiledialogs.c">
+    <ClCompile Include="..\..\libs\tinyfiledialogs\tinyfiledialogs.c">
       <Filter>Source Files\tiny</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,7 +119,7 @@
     <ClInclude Include="ModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\libs\tiny\tinyfiledialogs.h">
+    <ClInclude Include="..\..\libs\tinyfiledialogs\tinyfiledialogs.h">
       <Filter>Header Files\tiny</Filter>
     </ClInclude>
   </ItemGroup>
