@@ -10,6 +10,10 @@
 #include "ModelLoader.h"
 #include "tinyfiledialogs.h"
 
+#ifndef ORBIT_SENSITIVITY
+const float ORBIT_SENSITIVITY = 0.005f;
+#endif
+
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
@@ -32,9 +36,13 @@ int main(int argc, char* argv[]) {
     }
 
     RenderableModel currentModel;
-
     Renderer3D renderer3DInstance(window, gameRenderer);
     UIManager uiManagerInstance;
+
+    std::vector<RenderableModel> predefinedModels;
+    predefinedModels.push_back(ModelFactory::createCube());
+    predefinedModels.push_back(ModelFactory::createLine());
+    predefinedModels.push_back(ModelFactory::createPyramid());
 
     uiManagerInstance.initialize(window, gameRenderer);
 
@@ -43,12 +51,20 @@ int main(int argc, char* argv[]) {
     auto lastFrameTime = std::chrono::high_resolution_clock::now();
     float deltaTime = 0.0f;
 
+    bool leftMouseButtonDown = false;
+    bool middleMouseButtonDown = false;
+    float lastMouseX = 0.0f;
+    float lastMouseY = 0.0f;
+    int currentPredefinedModelIndex = 0;
+
     auto handleLoadObjRequest = [&](const std::string& filepath) {
         RenderableModel newModel;
         if (ModelLoader::loadObj(filepath, newModel)) {
             currentModel = newModel;
             renderer3DInstance.loadModel(currentModel);
+            renderer3DInstance.getCamera().reset();
             modelIsLoaded = true;
+            currentPredefinedModelIndex = -1;
             std::cout << "Successfully loaded and set new model: " << currentModel.name << std::endl;
         }
         else {
@@ -62,7 +78,14 @@ int main(int argc, char* argv[]) {
         }
         };
 
-    currentModel = ModelFactory::createCube();
+    if (!predefinedModels.empty()) {
+        currentModel = predefinedModels[0];
+        currentPredefinedModelIndex = 0;
+    }
+    else {
+        currentModel = ModelFactory::createCube();
+        currentPredefinedModelIndex = -1;
+    }
     renderer3DInstance.loadModel(currentModel);
     modelIsLoaded = true;
 
@@ -75,6 +98,7 @@ int main(int argc, char* argv[]) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             uiManagerInstance.processEvent(&event);
+
             if (event.type == SDL_EVENT_QUIT) {
                 running = false;
             }
@@ -93,7 +117,9 @@ int main(int argc, char* argv[]) {
             renderer3DInstance,
             currentModel,
             modelIsLoaded,
-            handleLoadObjRequest
+            handleLoadObjRequest,
+            predefinedModels,
+            currentPredefinedModelIndex
         );
 
         SDL_SetRenderDrawColor(gameRenderer,
